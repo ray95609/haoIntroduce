@@ -63,6 +63,11 @@
             z-index: 9998;
         }
 
+        @media (hover: none), (max-width: 768px) {
+            #cursor, #cursor-follower { display: none !important; }
+            * { cursor: auto !important; }
+        }
+
         /* --- Custom Cursor --- */
         #cursor {
             position: fixed;
@@ -128,6 +133,19 @@
             color: var(--white);
         }
 
+        .hero-bg-text {
+            position: absolute;
+            font-size: 25vw;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: 0;
+            white-space: nowrap;
+            pointer-events: none;
+            left: 50%; top: 40%;
+            transform: translate(-50%, -50%);
+            font-family: 'Outfit', sans-serif;
+        }
+
         /* --- Horizontal Gallery --- */
         .horizontal-section {
             height: 400vh;
@@ -145,11 +163,13 @@
             display: flex;
             padding: 0 10vw;
             gap: 15vw;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .gallery-item {
             min-width: 70vw;
             height: 75vh;
+            flex-shrink: 0;
             background: var(--gray);
             border-radius: 40px;
             overflow: hidden;
@@ -161,6 +181,7 @@
         .gallery-item img {
             width: 100%; height: 100%;
             object-fit: cover;
+            object-position: center 20%;
             opacity: 0.5;
             transition: transform 1s ease;
         }
@@ -199,6 +220,7 @@
             position: absolute;
             width: 100%; height: 100%;
             object-fit: cover;
+            object-position: center 20%;
             opacity: 0.3;
         }
 
@@ -268,12 +290,48 @@
         /* --- Footer --- */
         footer { padding: 10rem 10% 5rem; text-align: center; font-size: 1rem; color: #444; }
 
+        /* --- Reveal Animation --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .btn-magnetic:active { transform: scale(0.95); transition: transform 0.1s; }
+
         /* --- RWD --- */
         @media (max-width: 768px) {
-            .hero-title h1 { font-size: 6rem; letter-spacing: -3px; }
-            .gallery-item { min-width: 85vw; }
+            .mesh-bg { filter: blur(50px); }
+            .hero-title h1 { 
+                font-size: clamp(4rem, 15vw, 7rem); 
+                letter-spacing: -3px; 
+                -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+                color: transparent;
+            }
+
+            /* Horizontal Carousel Optimization */
+            .horizontal-section { height: auto !important; margin: 10vh 0; }
+            .sticky-box { position: relative !important; height: auto !important; overflow: visible !important; }
+            .gallery { 
+                padding: 0 10vw; 
+                gap: 5vw; 
+                overflow-x: auto; 
+                scroll-snap-type: x mandatory;
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+                transform: none !important;
+            }
+            .gallery::-webkit-scrollbar { display: none; }
+            .gallery-item { min-width: 80vw; scroll-snap-align: center; height: 60vh; border-radius: 30px; }
+            
             .item-info { bottom: 2rem; left: 2rem; }
-            .item-info h3 { font-size: 2.5rem; }
+            .item-info h3 { font-size: 2rem; }
+            .item-info p { font-size: 1.1rem; }
+            
             .qr-fancy { width: 300px; height: 300px; }
         }
     </style>
@@ -290,6 +348,7 @@
     <div class="scroll-container">
         
         <section class="hero">
+            <div class="hero-bg-text">STRENGTH</div>
             <div class="hero-img-container">
                 <img src="hero.png" alt="Eric" class="hero-img">
             </div>
@@ -393,6 +452,7 @@
         const horizSection = document.querySelector('.horizontal-section');
         
         window.addEventListener('scroll', () => {
+            if (window.innerWidth <= 768) return; // Disable on mobile
             const offset = window.scrollY - horizSection.offsetTop;
             if (offset > 0 && offset < (horizSection.offsetHeight - window.innerHeight)) {
                 const scrollX = (offset / (horizSection.offsetHeight - window.innerHeight)) * (gallery.offsetWidth - window.innerWidth + (window.innerWidth * 0.2));
@@ -417,22 +477,48 @@
             magneticWrap.style.transform = `translate(0, 0)`;
         });
 
-        // 3D Card Hover
-        const cards = document.querySelectorAll('.magic-card, .gallery-item');
-        cards.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = (e.clientX - rect.left - rect.width / 2) / 10;
-                const y = (e.clientY - rect.top - rect.height / 2) / 10;
-                card.style.transform = `perspective(1000px) rotateX(${-y}deg) rotateY(${x}deg) scale(1.03)`;
+        // 3D Card Hover (Desktop Only)
+        if (window.matchMedia("(hover: hover)").matches) {
+            const cards = document.querySelectorAll('.magic-card, .gallery-item');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = (e.clientX - rect.left - rect.width / 2) / 10;
+                    const y = (e.clientY - rect.top - rect.height / 2) / 10;
+                    card.style.transform = `perspective(1000px) rotateX(${-y}deg) rotateY(${x}deg) scale(1.03)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+                });
             });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+        }
+
+        // Intersection Observer for Reveal
+        const revealOptions = { threshold: 0.1 };
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    revealObserver.unobserve(entry.target);
+                }
             });
+        }, revealOptions);
+
+        document.querySelectorAll('section, .magic-card, .gallery-item, .cta-section h2, .qr-fancy, .hero-title').forEach(el => {
+            el.classList.add('reveal');
+            revealObserver.observe(el);
         });
 
-        // Scroll Reveal Animation (Section Scale Down)
+        // Scroll Reveal & Parallax
         window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            
+            // Hero Parallax
+            const bgText = document.querySelector('.hero-bg-text');
+            const heroImg = document.querySelector('.hero-img');
+            if (bgText) bgText.style.transform = `translate(-50%, calc(-50% + ${scrolled * 0.5}px))`;
+            if (heroImg) heroImg.style.transform = `scale(1.1) translateY(${scrolled * 0.1}px)`;
+
             const sections = document.querySelectorAll('section');
             sections.forEach(sec => {
                 const rect = sec.getBoundingClientRect();
