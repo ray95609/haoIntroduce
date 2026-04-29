@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERIC LIN | ELITE PERFORMANCE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #E9A805;
+            --accent: #E9408F;
+            --black: #000000;
+            --white: #ffffff;
+            --gray: #111111;
+            --glass: rgba(255, 255, 255, 0.03);
+            --transition-slow: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        body {
+            background-color: var(--black);
+            color: var(--white);
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Noise & Mesh Background --- */
+        .bg-wrapper {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .mesh-bg {
+            position: absolute;
+            width: 150%; height: 150%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(233, 168, 5, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(233, 64, 143, 0.08) 0%, transparent 50%);
+            filter: blur(100px);
+            animation: meshMove 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes meshMove {
+            from { transform: translate(-10%, -10%) rotate(0deg); }
+            to { transform: translate(10%, 10%) rotate(10deg); }
+        }
+
+        .noise {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Cfilter id='noiseFilter'%3%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3%3C/filter%3%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3%3C/svg%3");
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* --- Custom Cursor --- */
+        #cursor {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease;
+        }
+
+        #cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .hero-img-container {
+            position: absolute;
+            height: 100%; width: 100%;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .hero-img {
+            height: 95vh;
+            filter: grayscale(0.2) contrast(1.1);
+            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+            transform: scale(1.1);
+            transition: var(--transition-slow);
+        }
+
+        .hero-title {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            mix-blend-mode: difference;
+        }
+
+        .hero-title h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(5rem, 18vw, 15rem);
+            font-weight: 900;
+            line-height: 0.8;
+            letter-spacing: -8px;
+            margin: 0;
+            color: var(--white);
+        }
+
+        /* --- Horizontal Gallery --- */
+        .horizontal-section {
+            height: 400vh;
+            position: relative;
+        }
+
+        .sticky-box {
+            position: sticky;
+            top: 0; height: 100vh;
+            display: flex; align-items: center;
+            overflow: hidden;
+        }
+
+        .gallery {
+            display: flex;
+            padding: 0 10vw;
+            gap: 15vw;
+        }
+
+        .gallery-item {
+            min-width: 70vw;
+            height: 75vh;
+            background: var(--gray);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: var(--transition-slow);
+        }
+
+        .gallery-item img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0.5;
+            transition: transform 1s ease;
+        }
+
+        .gallery-item:hover img { transform: scale(1.1); opacity: 0.7; }
+
+        .item-info {
+            position: absolute;
+            bottom: 4rem; left: 4rem;
+            z-index: 10;
+            transform: translateZ(100px);
+        }
+
+        .item-info h3 { font-size: 4rem; color: var(--primary); margin-bottom: 1rem; }
+        .item-info p { font-size: 1.5rem; max-width: 500px; color: #ccc; }
+
+        /* --- 3D Grid --- */
+        .fancy-grid {
+            padding: 20vh 10%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 5rem;
+        }
+
+        .magic-card {
+            height: 600px;
+            background: var(--gray);
+            border-radius: 50px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition-slow);
+        }
+
+        .magic-card img {
+            position: absolute;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+        }
+
+        /* --- Magnetic CTA --- */
+        .cta-section {
+            padding: 30vh 10%;
+            text-align: center;
+            position: relative;
+        }
+
+        .magnetic-wrap {
+            display: inline-block;
+            padding: 40px;
+            transition: transform 0.2s linear;
+        }
+
+        .btn-magnetic {
+            padding: 2rem 5rem;
+            background: var(--accent);
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 900;
+            border-radius: 100px;
+            display: block;
+            box-shadow: 0 30px 60px rgba(233, 64, 143, 0.3);
+            transition: transform 0.2s linear, box-shadow 0.3s ease;
+        }
+
+        .qr-fancy {
+            margin: 5rem auto;
+            width: 400px; height: 400px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 60px;
+            transform: rotate(-3deg);
+            transition: var(--transition-slow);
+            box-shadow: 0 100px 150px rgba(233, 168, 5, 0.2);
+        }
+
+        .qr-fancy:hover { transform: rotate(0deg) scale(1.1); }
+        .qr-fancy img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* --- Marquee --- */
+        .marquee {
+            width: 100%;
+            padding: 5rem 0;
+            overflow: hidden;
+            background: var(--primary);
+            color: #000;
+            display: flex;
+            white-space: nowrap;
+        }
+
+        .marquee-content {
+            font-size: 8rem;
+            font-weight: 900;
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* --- Footer --- */
+        footer { padding: 10rem 10% 5rem; text-align: center; font-size: 1rem; color: #444; }
+
+        /* --- RWD --- */
+        @media (max-width: 768px) {
+            .hero-title h1 { font-size: 6rem; letter-spacing: -3px; }
+            .gallery-item { min-width: 85vw; }
+            .item-info { bottom: 2rem; left: 2rem; }
+            .item-info h3 { font-size: 2.5rem; }
+            .qr-fancy { width: 300px; height: 300px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="cursor"></div>
+    <div id="cursor-follower"></div>
+    <div class="noise"></div>
+    <div class="bg-wrapper">
+        <div class="mesh-bg"></div>
+    </div>
+
+    <div class="scroll-container">
+        
+        <section class="hero">
+            <div class="hero-img-container">
+                <img src="hero.png" alt="Eric" class="hero-img">
+            </div>
+            <div class="hero-title">
+                <p style="letter-spacing: 10px; opacity: 0.6; margin-bottom: 1rem;">ELITE PERFORMANCE</p>
+                <h1>ERIC LIN</h1>
+            </div>
+        </section>
+
+        <section style="padding: 15vh 10%;">
+            <h2 style="font-size: clamp(2rem, 5vw, 6rem); line-height: 1.1;">
+                「你需要的<span style="color: var(--primary);">不是更努力</span>，<br>是有系統與專業的訓練方式。」
+            </h2>
+        </section>
+
+        <!-- Horizontal Gallery -->
+        <div class="horizontal-section">
+            <div class="sticky-box">
+                <div class="gallery" id="gallery-wrap">
+                    <div class="gallery-item">
+                        <img src="strength.png" alt="Strength">
+                        <div class="item-info">
+                            <h3>肌力訓練</h3>
+                            <p>科學化重塑體態線條，打造強大的實戰體力。</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="elderly.png" alt="Elderly">
+                        <div class="item-info">
+                            <h3>長者肌力</h3>
+                            <p>專為高齡族群設計的安全、長效健康方案。</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="sports.png" alt="Sports">
+                        <div class="item-info">
+                            <h3>專項運動</h3>
+                            <p>籃球、運動員專屬功能性優化與傷害預防。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="marquee">
+            <div class="marquee-content">
+                ERIC LIN STRENGTH • PERIODIZED TRAINING • BODY SCULPTING • ELITE COACH •&nbsp;
+            </div>
+            <div class="marquee-content">
+                ERIC LIN STRENGTH • PERIODIZED TRAINING • BODY SCULPTING • ELITE COACH •&nbsp;
+            </div>
+        </div>
+
+        <!-- 3D Expertise Grid -->
+        <section class="fancy-grid">
+            <div class="magic-card" id="magic-1">
+                <img src="strength.png" alt="">
+                <div style="position: relative; padding: 4rem;">
+                    <h2 style="font-size: 4rem;">BODY<br><span style="color:var(--primary)">TRANSFORM</span></h2>
+                </div>
+            </div>
+            <div class="magic-card" id="magic-2">
+                <img src="elderly.png" alt="">
+                <div style="position: relative; padding: 4rem;">
+                    <h2 style="font-size: 4rem;">AGELESS<br><span style="color:var(--primary)">VITALITY</span></h2>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Section -->
+        <section class="cta-section" id="booking">
+            <h2 style="font-size: clamp(4rem, 12vw, 15rem); line-height: 0.8; margin-bottom: 2rem;">READY?</h2>
+            <div class="qr-fancy">
+                <img src="qr.png" alt="LINE">
+            </div>
+            <div class="magnetic-wrap">
+                <a href="https://line.me" class="btn-magnetic">BOOK SESSION</a>
+            </div>
+        </section>
+
+        <footer>
+            <p>DESIGNED FOR THE BOLD. ERIC LIN &copy; 2024</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // Custom Dual Cursor
+        const cursor = document.getElementById('cursor');
+        const follower = document.getElementById('cursor-follower');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+            setTimeout(() => {
+                follower.style.transform = `translate(${e.clientX - 14}px, ${e.clientY - 14}px)`;
+            }, 50);
+        });
+
+        // Horizontal Scroll
+        const gallery = document.getElementById('gallery-wrap');
+        const horizSection = document.querySelector('.horizontal-section');
+        
+        window.addEventListener('scroll', () => {
+            const offset = window.scrollY - horizSection.offsetTop;
+            if (offset > 0 && offset < (horizSection.offsetHeight - window.innerHeight)) {
+                const scrollX = (offset / (horizSection.offsetHeight - window.innerHeight)) * (gallery.offsetWidth - window.innerWidth + (window.innerWidth * 0.2));
+                gallery.style.transform = `translateX(-${scrollX}px)`;
+            }
+        });
+
+        // Magnetic Button
+        const magneticWrap = document.querySelector('.magnetic-wrap');
+        const btn = document.querySelector('.btn-magnetic');
+        
+        magneticWrap.addEventListener('mousemove', (e) => {
+            const rect = magneticWrap.getBoundingClientRect();
+            const x = (e.clientX - rect.left - rect.width / 2) * 0.4;
+            const y = (e.clientY - rect.top - rect.height / 2) * 0.4;
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+            magneticWrap.style.transform = `translate(${x*0.5}px, ${y*0.5}px)`;
+        });
+
+        magneticWrap.addEventListener('mouseleave', () => {
+            btn.style.transform = `translate(0, 0)`;
+            magneticWrap.style.transform = `translate(0, 0)`;
+        });
+
+        // 3D Card Hover
+        const cards = document.querySelectorAll('.magic-card, .gallery-item');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left - rect.width / 2) / 10;
+                const y = (e.clientY - rect.top - rect.height / 2) / 10;
+                card.style.transform = `perspective(1000px) rotateX(${-y}deg) rotateY(${x}deg) scale(1.03)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+            });
+        });
+
+        // Scroll Reveal Animation (Section Scale Down)
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(sec => {
+                const rect = sec.getBoundingClientRect();
+                if (rect.top < 0) {
+                    const scale = 1 + (rect.top / 5000);
+                    if (scale > 0.8) sec.style.transform = `scale(${scale})`;
+                    sec.style.opacity = 1 + (rect.top / 1000);
+                } else {
+                    sec.style.transform = `scale(1)`;
+                    sec.style.opacity = 1;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
