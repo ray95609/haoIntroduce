@@ -11,7 +11,7 @@
     <style>
         :root {
             --bg: #050505;
-            --primary: #f0ff42;
+            --primary: #FFB11B;
             --text: #ffffff;
             --text-dim: rgba(255, 255, 255, 0.6);
             --font-main: 'Outfit', sans-serif;
@@ -112,12 +112,13 @@
             pointer-events: none;
             box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary);
             transform: translate(-50%, -50%);
-            opacity: 0; /* Initially hidden to prevent top-left flash */
+            opacity: 0; 
             will-change: left, top, transform, width, height, border-radius;
             transition: width 0.6s cubic-bezier(0.23, 1, 0.32, 1), 
                         height 0.6s cubic-bezier(0.23, 1, 0.32, 1), 
                         border-radius 0.6s ease,
                         opacity 0.4s ease;
+            mix-blend-mode: screen; /* Optical blend with text */
         }
 
         .dot-pulse {
@@ -131,6 +132,7 @@
             transform: translate(-50%, -50%) scale(1);
             transform-origin: center;
             opacity: 0;
+            will-change: transform, opacity;
         }
 
         /* Content Styles */
@@ -151,6 +153,15 @@
             margin-bottom: 10px;
         }
 
+        .narrative-text {
+            font-size: 2.2rem;
+            line-height: 1.4;
+            text-align: center;
+            letter-spacing: 0.1em;
+            color: var(--text); /* Restored to pure white */
+            transition: color 0.5s ease;
+        }
+
         .expertise-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -160,9 +171,43 @@
         }
 
         .expertise-item {
-            padding: 20px;
+            position: relative;
+            padding: 25px;
             background: rgba(255, 255, 255, 0.03);
-            border-left: 2px solid var(--primary);
+            border: 1px solid rgba(255, 177, 27, 0.1);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden;
+        }
+
+        .expertise-item.active {
+            background: rgba(255, 177, 27, 0.05);
+            border-color: rgba(255, 177, 27, 0.3);
+            transform: scale(1.02);
+        }
+
+        .expertise-item::after {
+            content: '';
+            position: absolute;
+            top: -100%; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(255, 177, 27, 0.15), transparent);
+            animation: scan 3s linear infinite;
+            pointer-events: none;
+        }
+
+        .expertise-item::before {
+            content: '';
+            position: absolute;
+            top: 10px; right: 10px;
+            width: 8px; height: 8px;
+            border-top: 1px solid var(--primary);
+            border-right: 1px solid var(--primary);
+            opacity: 0.4;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(200%); }
         }
 
         /* Canvas Background */
@@ -191,7 +236,7 @@
     </div>
 
     <!-- Global Guided Dot -->
-    <div class="guided-dot">
+    <div class="guided-dot" id="main-dot">
         <div class="dot-pulse"></div>
     </div>
 
@@ -200,34 +245,29 @@
 
         <!-- Scene 0: Hero -->
         <div class="scene" id="scene-hero">
-            <h1 class="hero-title">ELITE<br>PERFORMANCE</h1>
-            <p class="section-tag">Eric Lin / Fitness Coach</p>
+            <span class="section-tag" id="tag-hero">Eric Lin | Elite Performance</span>
+            <h1 class="hero-title" id="title-hero">PEAK<br>CONDITION</h1>
         </div>
 
-        <!-- Scene 1: Story -->
-        <div class="scene" id="scene-story">
-            <span class="section-tag">01 / Philosophy</span>
-            <h2 class="hero-title" style="font-size: 3rem;">追求極致，從聰明的訓練開始</h2>
-            <p style="color: var(--text-dim); text-align: center; max-width: 500px;">
-                我們不只是在鍛鍊身體，是在重塑意志。透過科學化的數據分析與個人化導引，釋放你潛藏的運動潛能。
-            </p>
+        <div class="scene" id="scene-intro">
+            <span class="section-tag" id="tag-intro">01 / Narrative</span>
+            <h2 class="narrative-text" id="text-intro">專業、精確、卓越<br>成就非凡自我</h2>
         </div>
 
-        <!-- Scene 2: Methods -->
-        <div class="scene" id="scene-methods">
-            <span class="section-tag">02 / Expertise</span>
+        <div class="scene" id="scene-expertise">
+            <span class="section-tag" id="tag-expertise">02 / Expertise</span>
             <div class="expertise-grid">
-                <div class="expertise-item">
-                    <h3>增肌減脂</h3>
-                    <p>精準的體組成管理，打造理想體態。</p>
+                <div class="expertise-item" id="exp-1">
+                    <h3>體能評估</h3>
+                    <p>精確數據分析，定義起點</p>
                 </div>
-                <div class="expertise-item">
-                    <h3>體能改造</h3>
-                    <p>提升心肺耐力與爆發力，突破體能極限。</p>
+                <div class="expertise-item" id="exp-2">
+                    <h3>個人化計劃</h3>
+                    <p>量身打造，科學化訓練路徑</p>
                 </div>
-                <div class="expertise-item">
-                    <h3>運動表現</h3>
-                    <p>專為專項運動員設計的強化訓練計畫。</p>
+                <div class="expertise-item" id="exp-3">
+                    <h3>動作優化</h3>
+                    <p>極致細節，釋放潛在效能</p>
                 </div>
             </div>
         </div>
@@ -236,55 +276,71 @@
         <div class="scene" id="scene-action">
             <span class="section-tag">03 / Action</span>
             <h2 class="hero-title" style="font-size: 3rem;">開始你的改變</h2>
-            <div style="padding: 10px; background: #fff; border-radius: 10px; margin: 20px 0;">
+            <div style="padding: 10px; background: #fff; border-radius: 10px; margin: 20px 0 40px 0;">
                 <img id="qr-target" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://line.me/ti/p/1VjR0jyXCu" alt="QR Code" style="width: 150px; height: 150px;">
             </div>
-            <a href="https://line.me/ti/p/1VjR0jyXCu" style="background: var(--primary); color: #000; padding: 15px 40px; border-radius: 50px; text-decoration: none; font-weight: 900; letter-spacing: 0.1em;">BOOK SESSION</a>
+            <a href="https://line.me/ti/p/1VjR0jyXCu" style="background: var(--primary); color: #000; padding: 15px 40px; border-radius: 50px; text-decoration: none; font-weight: 900; letter-spacing: 0.1em; display: inline-block;">BOOK SESSION</a>
         </div>
     </div>
 
     <script>
-        const dot = document.querySelector('.guided-dot');
-        const scenes = document.querySelectorAll('.scene');
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        const loaderPercent = document.querySelector('.loader-percent');
-        const loaderRing = document.querySelector('.loader-ring circle');
-        
+        // 1. Core State
         let scrollProgress = 0;
-        let currentPos = { x: window.innerWidth/2, y: window.innerHeight/2 };
-        let targetPos = { x: window.innerWidth/2, y: window.innerHeight/2 };
         let qrCoords = { x: 0, y: 0 };
+        let anchorCoords = { intro: { x: 0, y: 0 }, exp: [] };
+        let currentPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let targetPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
         let isLoading = true;
 
-        // 1. Coordinate Caching
-        function cacheQRCoords() {
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        const dot = document.getElementById('main-dot');
+        const dotPulse = document.querySelector('.dot-pulse');
+        const loaderRing = document.querySelector('.loader-ring');
+        const loaderPercent = document.querySelector('.loader-percent');
+        const scenes = document.querySelectorAll('.scene');
+
+        function cacheAnchors() {
+            // QR
             const qr = document.getElementById('qr-target');
             if (qr) {
                 const rect = qr.getBoundingClientRect();
-                qrCoords.x = rect.left + rect.width / 2;
-                qrCoords.y = rect.top + rect.height / 2;
+                qrCoords = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
             }
+
+            // Narrative Anchors
+            const intro = document.getElementById('text-intro');
+            if (intro) {
+                const rect = intro.getBoundingClientRect();
+                anchorCoords.intro = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+            }
+
+            anchorCoords.exp = [1, 2, 3].map(i => {
+                const el = document.getElementById(`exp-${i}`);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+                }
+                return null;
+            }).filter(p => p !== null);
         }
 
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            cacheQRCoords();
+            cacheAnchors();
         });
 
         // 2. Loader & Boot Sequence
         function simulateLoading() {
             let progress = 0;
             function smoothLoader() {
-                // Non-linear progress for organic feel
                 progress += (100.5 - progress) * 0.04; 
                 
                 const offset = 314 - (314 * Math.min(100, progress) / 100);
-                loaderRing.style.strokeDashoffset = offset;
+                loaderRing.querySelector('circle').style.strokeDashoffset = offset;
                 loaderPercent.textContent = `INITIALIZING: ${Math.floor(Math.min(100, progress)).toString().padStart(2, '0')}%`;
                 
-                // Show dot only after loader is ready and centered
                 if (progress > 5) dot.style.opacity = '1';
 
                 if (progress < 99.5) {
@@ -309,7 +365,6 @@
                 }
             });
             
-            // Initial Pulse (Centering Fix: Preserve Translation)
             anime({
                 targets: '.dot-pulse',
                 translateX: ['-50%', '-50%'],
@@ -334,14 +389,27 @@
                 else s.classList.remove('active');
             });
 
-            // Morph logic for QR (Increased padding for full coverage)
+            // Expertise Item Highlighting
+            const items = document.querySelectorAll('.expertise-item');
+            if (activeIndex === 2) {
+                const subProgress = (progress - 0.45) / 0.35;
+                const activeItemIdx = Math.min(items.length - 1, Math.floor(subProgress * items.length));
+                items.forEach((item, i) => {
+                    if (i === activeItemIdx) item.classList.add('active');
+                    else item.classList.remove('active');
+                });
+            } else {
+                items.forEach(item => item.classList.remove('active'));
+            }
+
+            // Morph logic for QR
             if (progress > 0.88) {
                 dot.style.width = '220px'; 
                 dot.style.height = '220px';
                 dot.style.borderRadius = '20px';
-                dot.style.background = 'rgba(240, 255, 66, 0.08)';
-                dot.style.border = '2px solid rgba(240, 255, 66, 0.5)';
-                dot.style.boxShadow = '0 0 40px rgba(240, 255, 66, 0.3)';
+                dot.style.background = 'rgba(255, 177, 27, 0.08)';
+                dot.style.border = '2px solid rgba(255, 177, 27, 0.5)';
+                dot.style.boxShadow = '0 0 40px rgba(255, 177, 27, 0.3)';
             } else {
                 dot.style.width = '16px';
                 dot.style.height = '16px';
@@ -364,17 +432,41 @@
             const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
             
+            // Base Ambient Motion
+            let mathX = centerX + Math.sin(time * 2.5) * (window.innerWidth * 0.35);
+            let mathY = centerY + Math.cos(time * 1.2) * (window.innerHeight * 0.25);
+
             if (scrollProgress > 0.88) {
                 // QR Snap Phase
                 targetPos.x = qrCoords.x;
                 targetPos.y = qrCoords.y;
             } else {
-                // Free Flow Phase
-                targetPos.x = centerX + Math.sin(time * 2.5) * (window.innerWidth * 0.35);
-                targetPos.y = centerY + Math.cos(time * 1.2) * (window.innerHeight * 0.25);
+                // Narrative Gravity Blending
+                let gravityX = mathX;
+                let gravityY = mathY;
+                let influence = 0;
+
+                if (scrollProgress > 0.2 && scrollProgress < 0.45) {
+                    // Intro Focus (Direct Overlap)
+                    gravityX = anchorCoords.intro.x;
+                    gravityY = anchorCoords.intro.y;
+                    influence = Math.sin((scrollProgress - 0.2) / 0.25 * Math.PI) * 0.95;
+                } else if (scrollProgress >= 0.45 && scrollProgress < 0.8) {
+                    // Expertise Focus (sequential items)
+                    const subProgress = (scrollProgress - 0.45) / 0.35;
+                    const itemIdx = Math.min(anchorCoords.exp.length - 1, Math.floor(subProgress * anchorCoords.exp.length));
+                    const target = anchorCoords.exp[itemIdx];
+                    if (target) {
+                        gravityX = target.x;
+                        gravityY = target.y;
+                        influence = 0.6; // Constant gentle pull
+                    }
+                }
+
+                targetPos.x = mathX * (1 - influence) + gravityX * influence;
+                targetPos.y = mathY * (1 - influence) + gravityY * influence;
             }
 
-            // Smoother lerp for snap
             const lerpFactor = scrollProgress > 0.88 ? 0.15 : 0.08;
             currentPos.x += (targetPos.x - currentPos.x) * lerpFactor;
             currentPos.y += (targetPos.y - currentPos.y) * lerpFactor;
@@ -382,13 +474,32 @@
             dot.style.left = `${currentPos.x}px`;
             dot.style.top = `${currentPos.y}px`;
 
-            // Scaling (disabled in snap phase)
+            // Organic Heartbeat (Only active before QR snap, paused during text focus)
+            const isIntroFocus = scrollProgress > 0.2 && scrollProgress < 0.45;
+            if (scrollProgress <= 0.88 && !isIntroFocus) {
+                const hTime = Date.now() * 0.003;
+                const pulse = Math.pow(Math.sin(hTime), 12) + 0.4 * Math.pow(Math.sin(hTime - 0.5), 8);
+                dotPulse.style.transform = `translate(-50%, -50%) scale(${1 + pulse * 2})`;
+                dotPulse.style.opacity = 0.1 + pulse * 0.6;
+            } else {
+                dotPulse.style.opacity = '0';
+            }
+
+            // Dot Scaling (Ambient & Intro Focus)
             if (scrollProgress <= 0.88) {
                 const dx = targetPos.x - currentPos.x;
                 const dy = targetPos.y - currentPos.y;
                 const speed = Math.sqrt(dx*dx + dy*dy);
-                const scale = 1 + Math.min(1.5, speed / 40);
+                
+                // Enlarge dot during intro for better scanning coverage
+                let baseScale = 1;
+                if (scrollProgress > 0.2 && scrollProgress < 0.45) {
+                    baseScale = 4; // Larger glow for text coverage
+                }
+                
+                const scale = baseScale + Math.min(1.2, speed / 50);
                 dot.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                dot.style.filter = baseScale > 1 ? 'blur(15px)' : 'none';
             } else {
                 dot.style.transform = `translate(-50%, -50%) scale(1)`;
             }
@@ -400,9 +511,26 @@
 
         // 5. Background & Init
         function drawBackground() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = 'rgba(240, 255, 66, 0.05)';
+            
+            // Scene 2 Grid Background
+            if (scrollProgress > 0.45 && scrollProgress < 0.8) {
+                const gridAlpha = Math.min(0.04, (scrollProgress - 0.45) * 0.2);
+                ctx.strokeStyle = `rgba(255, 177, 27, ${gridAlpha})`;
+                const size = 60;
+                ctx.beginPath();
+                for (let x = 0; x <= canvas.width; x += size) {
+                    ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
+                }
+                for (let y = 0; y <= canvas.height; y += size) {
+                    ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+                }
+                ctx.stroke();
+            }
+
+            // Connection Line (RESTORED)
+            ctx.strokeStyle = 'rgba(255, 177, 27, 0.06)';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(window.innerWidth / 2, window.innerHeight / 2);
@@ -413,12 +541,12 @@
         window.addEventListener('load', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            cacheQRCoords();
+            cacheAnchors();
             simulateLoading();
             
-            // Keep dot in center during loading
             dot.style.left = '50%';
             dot.style.top = '50%';
+            dot.style.opacity = '0';
         });
     </script>
 </body>
