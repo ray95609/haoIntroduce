@@ -474,9 +474,8 @@
             dot.style.left = `${currentPos.x}px`;
             dot.style.top = `${currentPos.y}px`;
 
-            // Organic Heartbeat (Only active before QR snap, paused during text focus)
-            const isIntroFocus = scrollProgress > 0.2 && scrollProgress < 0.45;
-            if (scrollProgress <= 0.88 && !isIntroFocus) {
+            // Organic Heartbeat (Only active before QR snap)
+            if (scrollProgress <= 0.88) {
                 const hTime = Date.now() * 0.003;
                 const pulse = Math.pow(Math.sin(hTime), 12) + 0.4 * Math.pow(Math.sin(hTime - 0.5), 8);
                 dotPulse.style.transform = `translate(-50%, -50%) scale(${1 + pulse * 2})`;
