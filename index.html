@@ -2,534 +2,572 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ERIC LIN | ELITE PERFORMANCE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <!-- Anime.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         :root {
-            --primary: #E9A805;
-            --accent: #E9408F;
-            --black: #000000;
-            --white: #ffffff;
-            --gray: #111111;
-            --glass: rgba(255, 255, 255, 0.03);
-            --transition-slow: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+            --bg: #050505;
+            --primary: #f0ff42;
+            --text: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.6);
+            --font-main: 'Outfit', sans-serif;
+            --font-accent: 'Space Grotesk', sans-serif;
+            --transition: 0.8s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            cursor: none;
         }
 
-        body {
-            background-color: var(--black);
-            color: var(--white);
-            font-family: 'Space Grotesk', sans-serif;
+        body, html {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
             overflow-x: hidden;
+            width: 100%;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- Noise & Mesh Background --- */
-        .bg-wrapper {
+        /* 鎖定主容器，防止左右晃動 */
+        #app-wrapper {
+            position: relative;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Loading Screen */
+        #loader {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             overflow: hidden;
         }
 
-        .mesh-bg {
-            position: absolute;
-            width: 150%; height: 150%;
-            background: 
-                radial-gradient(circle at 20% 30%, rgba(233, 168, 5, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(233, 64, 143, 0.08) 0%, transparent 50%);
-            filter: blur(100px);
-            animation: meshMove 20s infinite alternate ease-in-out;
+        .loader-svg {
+            width: 300px;
+            overflow: visible;
         }
 
-        @keyframes meshMove {
-            from { transform: translate(-10%, -10%) rotate(0deg); }
-            to { transform: translate(10%, 10%) rotate(10deg); }
+        .loader-text {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 1;
+            font-family: var(--font-main);
+            font-weight: 900;
+            font-size: 40px;
+            letter-spacing: 5px;
         }
 
-        .noise {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Cfilter id='noiseFilter'%3%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3%3C/filter%3%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3%3C/svg%3");
-            opacity: 0.04;
-            pointer-events: none;
-            z-index: 9998;
-        }
-
-        @media (hover: none), (max-width: 768px) {
-            #cursor, #cursor-follower { display: none !important; }
-            * { cursor: auto !important; }
-        }
-
-        /* --- Custom Cursor --- */
-        #cursor {
-            position: fixed;
-            width: 12px;
-            height: 12px;
-            background: var(--primary);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease;
-        }
-
-        #cursor-follower {
-            position: fixed;
-            width: 40px;
-            height: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9998;
-            transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        /* --- Hero Section --- */
+        /* Cinematic Hero Section */
         .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden; /* Wait for intro */
         }
 
         .hero-img-container {
             position: absolute;
-            height: 100%; width: 100%;
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden;
+            width: 100%; height: 100%;
+            clip-path: circle(0% at 50% 50%); /* For anime.js */
             z-index: 1;
         }
 
-        .hero-img {
-            height: 95vh;
-            filter: grayscale(0.2) contrast(1.1);
-            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-            transform: scale(1.1);
-            transition: var(--transition-slow);
+        .hero-img-container img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center 20%;
+            filter: brightness(0.7) contrast(1.1);
         }
 
-        .hero-title {
+        .hero-content {
             position: relative;
             z-index: 10;
             text-align: center;
             mix-blend-mode: difference;
         }
 
-        .hero-title h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: clamp(5rem, 18vw, 15rem);
+        .hero-title {
+            font-size: clamp(3rem, 12vw, 8rem);
             font-weight: 900;
-            line-height: 0.8;
-            letter-spacing: -8px;
-            margin: 0;
-            color: var(--white);
-        }
-
-        .hero-bg-text {
-            position: absolute;
-            font-size: 25vw;
-            font-weight: 900;
-            color: rgba(255, 255, 255, 0.03);
-            z-index: 0;
-            white-space: nowrap;
-            pointer-events: none;
-            left: 50%; top: 40%;
-            transform: translate(-50%, -50%);
-            font-family: 'Outfit', sans-serif;
-        }
-
-        /* --- Horizontal Gallery --- */
-        .horizontal-section {
-            height: 400vh;
-            position: relative;
-        }
-
-        .sticky-box {
-            position: sticky;
-            top: 0; height: 100vh;
-            display: flex; align-items: center;
+            line-height: 0.9;
+            text-transform: uppercase;
             overflow: hidden;
         }
 
-        .gallery {
-            display: flex;
-            padding: 0 10vw;
-            gap: 15vw;
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .gallery-item {
-            min-width: 70vw;
-            height: 75vh;
-            flex-shrink: 0;
-            background: var(--gray);
-            border-radius: 40px;
-            overflow: hidden;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: var(--transition-slow);
-        }
-
-        .gallery-item img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            object-position: center 20%;
-            opacity: 0.5;
-            transition: transform 1s ease;
-        }
-
-        .gallery-item:hover img { transform: scale(1.1); opacity: 0.7; }
-
-        .item-info {
-            position: absolute;
-            bottom: 4rem; left: 4rem;
-            z-index: 10;
-            transform: translateZ(100px);
-        }
-
-        .item-info h3 { font-size: 4rem; color: var(--primary); margin-bottom: 1rem; }
-        .item-info p { font-size: 1.5rem; max-width: 500px; color: #ccc; }
-
-        /* --- 3D Grid --- */
-        .fancy-grid {
-            padding: 20vh 10%;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 5rem;
-        }
-
-        .magic-card {
-            height: 600px;
-            background: var(--gray);
-            border-radius: 50px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: var(--transition-slow);
-        }
-
-        .magic-card img {
-            position: absolute;
-            width: 100%; height: 100%;
-            object-fit: cover;
-            object-position: center 20%;
-            opacity: 0.3;
-        }
-
-        /* --- Magnetic CTA --- */
-        .cta-section {
-            padding: 30vh 10%;
-            text-align: center;
-            position: relative;
-        }
-
-        .magnetic-wrap {
+        .hero-title span {
             display: inline-block;
-            padding: 40px;
-            transition: transform 0.2s linear;
+            transform: translateY(100%);
         }
 
-        .btn-magnetic {
-            padding: 2rem 5rem;
-            background: var(--accent);
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.5rem;
-            font-weight: 900;
-            border-radius: 100px;
+        .hero-sub {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-family: var(--font-accent);
+            letter-spacing: 0.2em;
+            margin-top: 20px;
+            opacity: 0;
+        }
+
+        /* Story Sections */
+        .story-section {
+            position: relative;
+            min-height: 100vh;
+            padding: 100px 5vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .section-tag {
+            font-family: var(--font-accent);
+            color: var(--primary);
+            font-size: 0.8rem;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
             display: block;
-            box-shadow: 0 30px 60px rgba(233, 64, 143, 0.3);
-            transition: transform 0.2s linear, box-shadow 0.3s ease;
         }
 
-        .qr-fancy {
-            margin: 5rem auto;
-            width: 400px; height: 400px;
-            background: #fff;
-            padding: 30px;
-            border-radius: 60px;
-            transform: rotate(-3deg);
-            transition: var(--transition-slow);
-            box-shadow: 0 100px 150px rgba(233, 168, 5, 0.2);
+        .section-title {
+            font-size: clamp(2rem, 8vw, 5rem);
+            font-weight: 700;
+            max-width: 900px;
+            line-height: 1.1;
+            margin-bottom: 30px;
         }
 
-        .qr-fancy:hover { transform: rotate(0deg) scale(1.1); }
-        .qr-fancy img { width: 100%; height: 100%; object-fit: contain; }
+        .section-desc {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            line-height: 1.6;
+        }
 
-        /* --- Marquee --- */
-        .marquee {
-            width: 100%;
-            padding: 5rem 0;
-            overflow: hidden;
+        .expertise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .expertise-item {
+            padding: 40px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            transition: var(--transition);
+        }
+
+        .expertise-item:hover {
+            background: rgba(240, 255, 66, 0.05);
+            border-left-color: var(--primary);
+        }
+
+        .expertise-item h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .expertise-item p {
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .book-btn {
+            display: inline-block;
+            padding: 20px 50px;
             background: var(--primary);
             color: #000;
-            display: flex;
-            white-space: nowrap;
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-top: 40px;
+            transition: var(--transition);
         }
 
-        .marquee-content {
-            font-size: 8rem;
-            font-weight: 900;
+        .book-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(240, 255, 66, 0.3);
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* QR Code Styling */
+        .qr-container {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .qr-code {
+            width: 180px;
+            height: 180px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 10px;
             display: inline-block;
-            animation: marquee 20s linear infinite;
+            transition: var(--transition);
         }
 
-        @keyframes marquee {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
+        .qr-code img {
+            width: 100%;
+            height: 100%;
         }
 
-        /* --- Footer --- */
-        footer { padding: 10rem 10% 5rem; text-align: center; font-size: 1rem; color: #444; }
-
-        /* --- Reveal Animation --- */
-        .reveal {
-            opacity: 0;
-            transform: translateY(50px);
-            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .reveal.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .btn-magnetic:active { transform: scale(0.95); transition: transform 0.1s; }
-
-        /* --- RWD --- */
+        /* Mobile specific scroll tweaks */
         @media (max-width: 768px) {
-            .mesh-bg { filter: blur(50px); }
-            .hero-title h1 { 
-                font-size: clamp(4rem, 15vw, 7rem); 
-                letter-spacing: -3px; 
-                -webkit-text-stroke: 1px rgba(255,255,255,0.3);
-                color: transparent;
+            .story-section {
+                padding: 60px 8vw;
             }
-
-            /* Horizontal Carousel Optimization */
-            .horizontal-section { height: auto !important; margin: 10vh 0; }
-            .sticky-box { position: relative !important; height: auto !important; overflow: visible !important; }
-            .gallery { 
-                padding: 0 10vw; 
-                gap: 5vw; 
-                overflow-x: auto; 
-                scroll-snap-type: x mandatory;
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-                transform: none !important;
+            .section-title {
+                font-size: 2.5rem;
             }
-            .gallery::-webkit-scrollbar { display: none; }
-            .gallery-item { min-width: 80vw; scroll-snap-align: center; height: 60vh; border-radius: 30px; }
-            
-            .item-info { bottom: 2rem; left: 2rem; }
-            .item-info h3 { font-size: 2rem; }
-            .item-info p { font-size: 1.1rem; }
-            
-            .qr-fancy { width: 300px; height: 300px; }
+            .expertise-grid {
+                grid-template-columns: 1fr;
+            }
         }
+
+        /* Guided Dot */
+        .guided-dot {
+            position: fixed;
+            width: 14px;
+            height: 14px;
+            background: var(--primary);
+            border-radius: 50%;
+            z-index: 10000;
+            pointer-events: none;
+            box-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary);
+            transform: translate(-50%, -50%);
+            will-change: left, top, transform, width, height;
+        }
+
+        .dot-pulse {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+
+        /* Hidden Path Container */
+        #path-container {
+            position: absolute;
+            width: 1px; height: 1px;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        /* Canvas Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background: #000;
+        }
+
+        /* Utility classes */
+        .reveal-box {
+            will-change: transform, opacity;
+        }
+
     </style>
 </head>
 <body>
 
-    <div id="cursor"></div>
-    <div id="cursor-follower"></div>
-    <div class="noise"></div>
-    <div class="bg-wrapper">
-        <div class="mesh-bg"></div>
+    <div id="loader">
+        <svg class="loader-svg" viewBox="0 0 400 200">
+            <!-- Geometric Frame -->
+            <path class="loader-frame" d="M 50,50 L 350,50 L 350,150 L 50,150 Z" fill="none" stroke="var(--primary)" stroke-width="0.5" />
+            <text x="50%" y="105" text-anchor="middle" dominant-baseline="middle" class="loader-text">ERIC LIN</text>
+        </svg>
     </div>
 
-    <div class="scroll-container">
-        
-        <section class="hero">
-            <div class="hero-bg-text">STRENGTH</div>
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Guided Dot Narrative -->
+    <div class="guided-dot">
+        <div class="dot-pulse"></div>
+    </div>
+    
+    <div id="path-container">
+        <svg viewBox="0 0 100 1000">
+            <!-- Path zig-zags to follow the storytelling flow -->
+            <path id="guide-path" d="M 50,20 C 80,150 20,250 50,400 S 80,600 50,750 S 20,900 50,980" fill="none" />
+        </svg>
+    </div>
+
+    <div id="app-wrapper">
+        <section class="hero" id="hero">
             <div class="hero-img-container">
-                <img src="hero.png" alt="Eric" class="hero-img">
+                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80" alt="Eric Lin Coach">
             </div>
-            <div class="hero-title">
-                <p style="letter-spacing: 10px; opacity: 0.6; margin-bottom: 1rem;">ELITE PERFORMANCE</p>
-                <h1>ERIC LIN</h1>
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="t1">Elite</span><br>
+                    <span class="t2">Performance</span>
+                </h1>
+                <p class="hero-sub">REDEFINING YOUR POTENTIAL — BY ERIC LIN</p>
             </div>
         </section>
 
-        <section style="padding: 15vh 10%;">
-            <h2 style="font-size: clamp(2rem, 5vw, 6rem); line-height: 1.1;">
-                「你需要的<span style="color: var(--primary);">不是更努力</span>，<br>是有系統與專業的訓練方式。」
-            </h2>
+        <!-- Story Sections -->
+        <section class="story-section" id="philosophy">
+            <div class="reveal-box">
+                <span class="section-tag">01 / Philosophy</span>
+                <h2 class="section-title">
+                    你需要的不是更努力，<br>而是更聰明的訓練。
+                </h2>
+                <p class="section-desc">科學訓練，成就卓越。我們不只是教動作，我們是在優化你的生活與運動表現。</p>
+            </div>
         </section>
 
-        <!-- Horizontal Gallery -->
-        <div class="horizontal-section">
-            <div class="sticky-box">
-                <div class="gallery" id="gallery-wrap">
-                    <div class="gallery-item">
-                        <img src="strength.png" alt="Strength">
-                        <div class="item-info">
-                            <h3>肌力訓練</h3>
-                            <p>科學化重塑體態線條，打造強大的實戰體力。</p>
-                        </div>
+        <section class="story-section" id="expertise">
+            <div class="reveal-box">
+                <span class="section-tag">02 / Expertise</span>
+                <h2 class="section-title">專業項目</h2>
+                <div class="expertise-grid">
+                    <div class="expertise-item">
+                        <h3>長者肌力</h3>
+                        <p>優化生活品質，重拾行動自由。</p>
                     </div>
-                    <div class="gallery-item">
-                        <img src="elderly.png" alt="Elderly">
-                        <div class="item-info">
-                            <h3>長者肌力</h3>
-                            <p>專為高齡族群設計的安全、長效健康方案。</p>
-                        </div>
+                    <div class="expertise-item">
+                        <h3>專項運動表現</h3>
+                        <p>突破極限，追求卓越表現。</p>
                     </div>
-                    <div class="gallery-item">
-                        <img src="sports.png" alt="Sports">
-                        <div class="item-info">
-                            <h3>專項運動</h3>
-                            <p>籃球、運動員專屬功能性優化與傷害預防。</p>
-                        </div>
+                    <div class="expertise-item">
+                        <h3>傷後功能重建</h3>
+                        <p>科學康復，安全回歸運動。</p>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="marquee">
-            <div class="marquee-content">
-                ERIC LIN STRENGTH • PERIODIZED TRAINING • BODY SCULPTING • ELITE COACH •&nbsp;
-            </div>
-            <div class="marquee-content">
-                ERIC LIN STRENGTH • PERIODIZED TRAINING • BODY SCULPTING • ELITE COACH •&nbsp;
-            </div>
-        </div>
-
-        <!-- 3D Expertise Grid -->
-        <section class="fancy-grid">
-            <div class="magic-card" id="magic-1">
-                <img src="strength.png" alt="">
-                <div style="position: relative; padding: 4rem;">
-                    <h2 style="font-size: 4rem;">BODY<br><span style="color:var(--primary)">TRANSFORM</span></h2>
-                </div>
-            </div>
-            <div class="magic-card" id="magic-2">
-                <img src="elderly.png" alt="">
-                <div style="position: relative; padding: 4rem;">
-                    <h2 style="font-size: 4rem;">AGELESS<br><span style="color:var(--primary)">VITALITY</span></h2>
                 </div>
             </div>
         </section>
 
-        <!-- Booking Section -->
-        <section class="cta-section" id="booking">
-            <h2 style="font-size: clamp(4rem, 12vw, 15rem); line-height: 0.8; margin-bottom: 2rem;">READY?</h2>
-            <div class="qr-fancy">
-                <img src="qr.png" alt="LINE">
-            </div>
-            <div class="magnetic-wrap">
-                <a href="https://line.me" class="btn-magnetic">BOOK SESSION</a>
+        <section class="story-section" id="contact">
+            <div class="reveal-box">
+                <span class="section-tag">03 / Action</span>
+                <h2 class="section-title">開始你的改變</h2>
+                <div class="qr-container">
+                    <div class="qr-code">
+                        <!-- Eric's LINE QR Code -->
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://line.me/ti/p/1VjR0jyXCu" alt="LINE QR Code">
+                    </div>
+                </div>
+                <a href="https://line.me/ti/p/1VjR0jyXCu" class="book-btn">BOOK SESSION</a>
             </div>
         </section>
-
-        <footer>
-            <p>DESIGNED FOR THE BOLD. ERIC LIN &copy; 2024</p>
-        </footer>
-
     </div>
 
     <script>
-        // Custom Dual Cursor
-        const cursor = document.getElementById('cursor');
-        const follower = document.getElementById('cursor-follower');
-        
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-            setTimeout(() => {
-                follower.style.transform = `translate(${e.clientX - 14}px, ${e.clientY - 14}px)`;
-            }, 50);
-        });
+        // --- 1. Canvas Dot Grid ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let dots = [];
+        const spacing = 40;
 
-        // Horizontal Scroll
-        const gallery = document.getElementById('gallery-wrap');
-        const horizSection = document.querySelector('.horizontal-section');
-        
-        window.addEventListener('scroll', () => {
-            if (window.innerWidth <= 768) return; // Disable on mobile
-            const offset = window.scrollY - horizSection.offsetTop;
-            if (offset > 0 && offset < (horizSection.offsetHeight - window.innerHeight)) {
-                const scrollX = (offset / (horizSection.offsetHeight - window.innerHeight)) * (gallery.offsetWidth - window.innerWidth + (window.innerWidth * 0.2));
-                gallery.style.transform = `translateX(-${scrollX}px)`;
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            dots = [];
+            for (let x = 0; x <= canvas.width; x += spacing) {
+                for (let y = 0; y <= canvas.height + 200; y += spacing) {
+                    dots.push({ x, y, originY: y });
+                }
             }
-        });
-
-        // Magnetic Button
-        const magneticWrap = document.querySelector('.magnetic-wrap');
-        const btn = document.querySelector('.btn-magnetic');
-        
-        magneticWrap.addEventListener('mousemove', (e) => {
-            const rect = magneticWrap.getBoundingClientRect();
-            const x = (e.clientX - rect.left - rect.width / 2) * 0.4;
-            const y = (e.clientY - rect.top - rect.height / 2) * 0.4;
-            btn.style.transform = `translate(${x}px, ${y}px)`;
-            magneticWrap.style.transform = `translate(${x*0.5}px, ${y*0.5}px)`;
-        });
-
-        magneticWrap.addEventListener('mouseleave', () => {
-            btn.style.transform = `translate(0, 0)`;
-            magneticWrap.style.transform = `translate(0, 0)`;
-        });
-
-        // 3D Card Hover (Desktop Only)
-        if (window.matchMedia("(hover: hover)").matches) {
-            const cards = document.querySelectorAll('.magic-card, .gallery-item');
-            cards.forEach(card => {
-                card.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = (e.clientX - rect.left - rect.width / 2) / 10;
-                    const y = (e.clientY - rect.top - rect.height / 2) / 10;
-                    card.style.transform = `perspective(1000px) rotateX(${-y}deg) rotateY(${x}deg) scale(1.03)`;
-                });
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
-                });
-            });
         }
 
-        // Intersection Observer for Reveal
-        const revealOptions = { threshold: 0.1 };
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    revealObserver.unobserve(entry.target);
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(240, 255, 66, 0.1)';
+            
+            const scrollOffset = window.scrollY * 0.15;
+            
+            dots.forEach(dot => {
+                let displayY = (dot.originY - scrollOffset) % (canvas.height + 200);
+                if (displayY < 0) displayY += (canvas.height + 200);
+                
+                if (displayY <= canvas.height) {
+                    ctx.beginPath();
+                    ctx.arc(dot.x, displayY, 0.8, 0, Math.PI * 2);
+                    ctx.fill();
                 }
             });
-        }, revealOptions);
+            requestAnimationFrame(render);
+        }
 
-        document.querySelectorAll('section, .magic-card, .gallery-item, .cta-section h2, .qr-fancy, .hero-title').forEach(el => {
-            el.classList.add('reveal');
-            revealObserver.observe(el);
-        });
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        render();
 
-        // Scroll Reveal & Parallax
-        window.addEventListener('scroll', () => {
-            const scrolled = window.scrollY;
+        // --- 2. Guided Dot Engine (Mobile First) ---
+        const dot = document.querySelector('.guided-dot');
+        const pulse = document.querySelector('.dot-pulse');
+        const path = anime.path('#guide-path');
+        
+        let scrollProgress = 0;
+        let currentPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let targetPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+
+        function updateDot() {
+            const scrollY = window.scrollY;
+            const maxScroll = (document.documentElement.scrollHeight - window.innerHeight) || 1;
+            scrollProgress = Math.max(0, Math.min(1, scrollY / maxScroll));
+
+            // Map progress to path (0 to 100)
+            const pathProgress = scrollProgress * 100;
+            const p = path(pathProgress);
+
+            // Fixed Viewport Mapping (Mobile Optimized)
+            // We use a safe-zone for x (15% to 85%)
+            const safeWidth = window.innerWidth * 0.7;
+            targetPos.x = (window.innerWidth * 0.15) + (p.x / 100) * safeWidth;
             
-            // Hero Parallax
-            const bgText = document.querySelector('.hero-bg-text');
-            const heroImg = document.querySelector('.hero-img');
-            if (bgText) bgText.style.transform = `translate(-50%, calc(-50% + ${scrolled * 0.5}px))`;
-            if (heroImg) heroImg.style.transform = `scale(1.1) translateY(${scrolled * 0.1}px)`;
+            // Y is mapped to viewport height (20% to 80% to keep in view)
+            const safeHeight = window.innerHeight * 0.6;
+            targetPos.y = (window.innerHeight * 0.2) + (p.y / 1000) * safeHeight;
 
-            const sections = document.querySelectorAll('section');
-            sections.forEach(sec => {
-                const rect = sec.getBoundingClientRect();
-                if (rect.top < 0) {
-                    const scale = 1 + (rect.top / 5000);
-                    if (scale > 0.8) sec.style.transform = `scale(${scale})`;
-                    sec.style.opacity = 1 + (rect.top / 1000);
-                } else {
-                    sec.style.transform = `scale(1)`;
-                    sec.style.opacity = 1;
+            // Smooth Lerp
+            currentPos.x += (targetPos.x - currentPos.x) * 0.12;
+            currentPos.y += (targetPos.y - currentPos.y) * 0.12;
+
+            dot.style.left = `${currentPos.x}px`;
+            dot.style.top = `${currentPos.y}px`;
+
+            // Velocity-based scaling (Stretch on move)
+            const dx = targetPos.x - currentPos.x;
+            const dy = targetPos.y - currentPos.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const scale = 1 + Math.min(0.5, dist / 100);
+            
+            if (scrollProgress < 0.95) {
+                dot.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                dot.style.width = '14px';
+                dot.style.height = '14px';
+                dot.style.opacity = '1';
+            } else {
+                // Final nesting pulse
+                dot.style.transform = `translate(-50%, -50%) scale(1)`;
+                dot.style.width = '80px';
+                dot.style.height = '80px';
+                dot.style.opacity = '0.15';
+            }
+
+            requestAnimationFrame(updateDot);
+        }
+        updateDot();
+
+        // --- 3. Master Animation Timeline ---
+        window.addEventListener('load', () => {
+            const tl = anime.timeline({
+                easing: 'easeOutExpo'
+            });
+
+            tl
+            .add({
+                targets: '.loader-frame',
+                strokeDashoffset: [anime.setDashoffset, 0],
+                duration: 1500,
+                delay: 500,
+                easing: 'easeInOutSine'
+            })
+            .add({
+                targets: '.loader-text',
+                opacity: [0, 1],
+                letterSpacing: ['0.5em', '1.2em'],
+                duration: 1000
+            }, '-=800')
+            .add({
+                targets: '#loader',
+                opacity: 0,
+                duration: 800,
+                easing: 'easeInOutQuart',
+                complete: () => {
+                    document.getElementById('loader').style.display = 'none';
                 }
+            })
+            .add({
+                targets: '.hero-img-container',
+                clipPath: ['circle(0% at 50% 50%)', 'circle(100% at 50% 50%)'],
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }, '-=600')
+            .add({
+                targets: '.hero-title span',
+                translateY: [100, 0],
+                opacity: [0, 1],
+                rotate: [5, 0],
+                delay: anime.stagger(150),
+                duration: 1200
+            }, '-=1500')
+            .add({
+                targets: '.hero-sub',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 800
+            }, '-=800');
+
+            // --- 4. Intersection Observer for Storytelling ---
+            const observerOptions = { threshold: 0.15 };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = entry.target;
+                        
+                        // Trigger Pulse on Dot when entering section
+                        anime({
+                            targets: '.dot-pulse',
+                            scale: [1, 4],
+                            opacity: [0.8, 0],
+                            duration: 1000,
+                            easing: 'easeOutQuart'
+                        });
+
+                        const revealElements = target.querySelectorAll('.reveal-box > *, .expertise-item');
+                        
+                        anime({
+                            targets: revealElements,
+                            opacity: [0, 1],
+                            translateY: [30, 0],
+                            delay: anime.stagger(150),
+                            duration: 1200,
+                            easing: 'easeOutExpo'
+                        });
+
+                        observer.unobserve(target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.story-section').forEach(section => {
+                const children = section.querySelectorAll('.reveal-box > *, .expertise-item');
+                children.forEach(c => c.style.opacity = '0');
+                observer.observe(section);
             });
         });
     </script>
