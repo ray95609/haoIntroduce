@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ERIC LIN | ELITE PERFORMANCE</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=Space+Grotesk:wght@300;500;700&display=swap"
+        rel="stylesheet">
     <!-- Anime.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
@@ -31,15 +34,18 @@
             font-family: var(--font-main);
             overflow-x: hidden;
             width: 100%;
-            height: 600vh; /* Scroll length */
+            height: 600vh;
+            /* Scroll length */
             -webkit-font-smoothing: antialiased;
         }
 
         /* Loading Screen (Energy Boot) */
         #loader {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: #000;
             z-index: 10000;
             display: flex;
@@ -64,7 +70,8 @@
 
         .loader-percent {
             position: absolute;
-            bottom: 35%; /* Fixed position relative to center */
+            bottom: 35%;
+            /* Fixed position relative to center */
             font-family: var(--font-accent);
             color: var(--primary);
             font-size: 0.9rem;
@@ -83,8 +90,10 @@
 
         .scene {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -112,19 +121,22 @@
             pointer-events: none;
             box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary);
             transform: translate(-50%, -50%);
-            opacity: 0; 
+            opacity: 0;
             will-change: left, top, transform, width, height, border-radius;
-            transition: width 0.6s cubic-bezier(0.23, 1, 0.32, 1), 
-                        height 0.6s cubic-bezier(0.23, 1, 0.32, 1), 
-                        border-radius 0.6s ease,
-                        opacity 0.4s ease;
-            mix-blend-mode: screen; /* Optical blend with text */
+            transition: width 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                height 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                border-radius 0.6s ease,
+                opacity 0.4s ease;
+            mix-blend-mode: screen;
+            /* Optical blend with text */
         }
 
         .dot-pulse {
             position: absolute;
-            top: 50%; left: 50%;
-            width: 100%; height: 100%;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
             background: var(--primary);
             border-radius: 50%;
             filter: blur(8px);
@@ -158,7 +170,8 @@
             line-height: 1.4;
             text-align: center;
             letter-spacing: 0.1em;
-            color: var(--text); /* Restored to pure white */
+            color: var(--text);
+            /* Restored to pure white */
             transition: color 0.5s ease;
         }
 
@@ -188,8 +201,10 @@
         .expertise-item::after {
             content: '';
             position: absolute;
-            top: -100%; left: 0;
-            width: 100%; height: 100%;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(to bottom, transparent, rgba(255, 177, 27, 0.15), transparent);
             animation: scan 3s linear infinite;
             pointer-events: none;
@@ -198,34 +213,137 @@
         .expertise-item::before {
             content: '';
             position: absolute;
-            top: 10px; right: 10px;
-            width: 8px; height: 8px;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
             border-top: 1px solid var(--primary);
             border-right: 1px solid var(--primary);
             opacity: 0.4;
         }
 
         @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(200%); }
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(200%);
+            }
         }
 
         /* Canvas Background */
         #bg-canvas {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 1;
             pointer-events: none;
+        }
+
+        /* Slogan Animation */
+        .slogan-line {
+            display: block;
+            transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .slogan-not-effort {
+            color: #ffffff;
+            opacity: 0.8;
+            font-weight: 300;
+            font-size: 1.8rem;
+            letter-spacing: 0.2em;
+        }
+
+        .slogan-system {
+            opacity: 0;
+            color: var(--primary);
+            font-weight: 900;
+            font-size: 2.8rem;
+            filter: blur(20px);
+            transform: translateY(20px);
+            text-shadow: 0 0 30px rgba(255, 177, 27, 0.4);
+        }
+
+        .scene.active .slogan-system {
+            opacity: 1;
+            filter: blur(0px);
+            transform: translateY(0);
+            transition-delay: 0.6s;
+        }
+
+        .scene.active .slogan-not-effort {
+            opacity: 1;
+        }
+
+        /* Expertise Labels */
+        .expertise-label {
+            position: absolute;
+            top: 10px;
+            left: 25px;
+            font-family: var(--font-accent);
+            font-size: 0.6rem;
+            color: var(--primary);
+            opacity: 0.2;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* QR Card Physical Aesthetic */
+        .qr-card {
+            position: relative;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin: 20px 0 40px 0;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
+                inset 0 0 0 1px rgba(255, 255, 255, 1);
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: perspective(1000px) rotateX(5deg);
+            z-index: 2;
+        }
+
+        .qr-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #fff, var(--primary), #fff);
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .qr-card img {
+            width: 160px;
+            height: 160px;
+            display: block;
+        }
+
+        .qr-card-tag {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: #000;
+            padding: 4px 15px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            box-shadow: 0 5px 15px rgba(255, 177, 27, 0.4);
         }
 
         /* Utility classes */
         .reveal-box {
             will-change: transform, opacity;
         }
-
     </style>
 </head>
+
 <body>
 
     <div id="loader">
@@ -245,29 +363,35 @@
 
         <!-- Scene 0: Hero -->
         <div class="scene" id="scene-hero">
-            <span class="section-tag" id="tag-hero">Eric Lin | Elite Performance</span>
+            <span class="section-tag" id="tag-hero">Eric Lin | XPORTS Private Coach</span>
             <h1 class="hero-title" id="title-hero">PEAK<br>CONDITION</h1>
         </div>
 
         <div class="scene" id="scene-intro">
-            <span class="section-tag" id="tag-intro">01 / Narrative</span>
-            <h2 class="narrative-text" id="text-intro">專業、精確、卓越<br>成就非凡自我</h2>
+            <span class="section-tag" id="tag-intro">01 / Philosophy</span>
+            <h2 class="narrative-text" id="text-intro">
+                <span class="slogan-line slogan-not-effort">你需要的不是更努力</span>
+                <span class="slogan-line slogan-system">是有系統與專業的訓練方式</span>
+            </h2>
         </div>
 
         <div class="scene" id="scene-expertise">
             <span class="section-tag" id="tag-expertise">02 / Expertise</span>
             <div class="expertise-grid">
                 <div class="expertise-item" id="exp-1">
-                    <h3>體能評估</h3>
-                    <p>精確數據分析，定義起點</p>
+                    <span class="expertise-label">Body Composition</span>
+                    <h3>肌力訓練</h3>
+                    <p>重塑體態線條，建構強韌基礎</p>
                 </div>
                 <div class="expertise-item" id="exp-2">
-                    <h3>個人化計劃</h3>
-                    <p>量身打造，科學化訓練路徑</p>
+                    <span class="expertise-label">Active Aging</span>
+                    <h3>長者肌力</h3>
+                    <p>專業安全指導，提升生活品質</p>
                 </div>
                 <div class="expertise-item" id="exp-3">
-                    <h3>動作優化</h3>
-                    <p>極致細節，釋放潛在效能</p>
+                    <span class="expertise-label">Functional Sport</span>
+                    <h3>專項運動</h3>
+                    <p>預防傷害訓練，釋放運動潛能</p>
                 </div>
             </div>
         </div>
@@ -276,10 +400,15 @@
         <div class="scene" id="scene-action">
             <span class="section-tag">03 / Action</span>
             <h2 class="hero-title" style="font-size: 3rem;">開始你的改變</h2>
-            <div style="padding: 10px; background: #fff; border-radius: 10px; margin: 20px 0 40px 0;">
-                <img id="qr-target" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://line.me/ti/p/1VjR0jyXCu" alt="QR Code" style="width: 150px; height: 150px;">
+            <div class="qr-card">
+                <span class="qr-card-tag">掃我預約體驗</span>
+                <img id="qr-target"
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://line.me/ti/p/1VjR0jyXCu"
+                    alt="QR Code">
             </div>
-            <a href="https://line.me/ti/p/1VjR0jyXCu" style="background: var(--primary); color: #000; padding: 15px 40px; border-radius: 50px; text-decoration: none; font-weight: 900; letter-spacing: 0.1em; display: inline-block;">BOOK SESSION</a>
+            <a href="https://line.me/ti/p/1VjR0jyXCu"
+                style="background: var(--primary); color: #000; padding: 15px 40px; border-radius: 50px; text-decoration: none; font-weight: 900; letter-spacing: 0.1em; display: inline-block;">BOOK
+                SESSION</a>
         </div>
     </div>
 
@@ -335,12 +464,12 @@
         function simulateLoading() {
             let progress = 0;
             function smoothLoader() {
-                progress += (100.5 - progress) * 0.04; 
-                
+                progress += (100.5 - progress) * 0.04;
+
                 const offset = 314 - (314 * Math.min(100, progress) / 100);
                 loaderRing.querySelector('circle').style.strokeDashoffset = offset;
                 loaderPercent.textContent = `INITIALIZING: ${Math.floor(Math.min(100, progress)).toString().padStart(2, '0')}%`;
-                
+
                 if (progress > 5) dot.style.opacity = '1';
 
                 if (progress < 99.5) {
@@ -364,7 +493,7 @@
                     updateDot();
                 }
             });
-            
+
             anime({
                 targets: '.dot-pulse',
                 translateX: ['-50%', '-50%'],
@@ -404,12 +533,12 @@
 
             // Morph logic for QR
             if (progress > 0.88) {
-                dot.style.width = '220px'; 
-                dot.style.height = '220px';
+                dot.style.width = '240px';
+                dot.style.height = '280px';
                 dot.style.borderRadius = '20px';
-                dot.style.background = 'rgba(255, 177, 27, 0.08)';
+                dot.style.background = 'rgba(255, 177, 27, 0.05)';
                 dot.style.border = '2px solid rgba(255, 177, 27, 0.5)';
-                dot.style.boxShadow = '0 0 40px rgba(255, 177, 27, 0.3)';
+                dot.style.boxShadow = '0 0 50px rgba(255, 177, 27, 0.3)';
             } else {
                 dot.style.width = '16px';
                 dot.style.height = '16px';
@@ -431,7 +560,7 @@
             const time = scrollProgress * Math.PI * 2;
             const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
-            
+
             // Base Ambient Motion
             let mathX = centerX + Math.sin(time * 2.5) * (window.innerWidth * 0.35);
             let mathY = centerY + Math.cos(time * 1.2) * (window.innerHeight * 0.25);
@@ -488,14 +617,19 @@
             if (scrollProgress <= 0.88) {
                 const dx = targetPos.x - currentPos.x;
                 const dy = targetPos.y - currentPos.y;
-                const speed = Math.sqrt(dx*dx + dy*dy);
-                
+                const speed = Math.sqrt(dx * dx + dy * dy);
+
                 // Enlarge dot during intro for better scanning coverage
                 let baseScale = 1;
                 if (scrollProgress > 0.2 && scrollProgress < 0.45) {
-                    baseScale = 4; // Larger glow for text coverage
+                    baseScale = 4.5; // Slightly larger for the new slogan
                 }
-                
+
+                // Extra pulse when near expertise items
+                if (scrollProgress >= 0.45 && scrollProgress < 0.8) {
+                    baseScale = 1.8;
+                }
+
                 const scale = baseScale + Math.min(1.2, speed / 50);
                 dot.style.transform = `translate(-50%, -50%) scale(${scale})`;
                 dot.style.filter = baseScale > 1 ? 'blur(15px)' : 'none';
@@ -512,7 +646,7 @@
         function drawBackground() {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
+
             // Scene 2 Grid Background
             if (scrollProgress > 0.45 && scrollProgress < 0.8) {
                 const gridAlpha = Math.min(0.04, (scrollProgress - 0.45) * 0.2);
@@ -542,11 +676,12 @@
             canvas.height = window.innerHeight;
             cacheAnchors();
             simulateLoading();
-            
+
             dot.style.left = '50%';
             dot.style.top = '50%';
             dot.style.opacity = '0';
         });
     </script>
 </body>
+
 </html>
