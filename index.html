@@ -25,243 +25,58 @@
             box-sizing: border-box;
         }
 
-        body, html {
+        body {
             background-color: var(--bg);
             color: var(--text);
             font-family: var(--font-main);
             overflow-x: hidden;
             width: 100%;
+            height: 600vh; /* Scroll length */
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 鎖定主容器，防止左右晃動 */
-        #app-wrapper {
-            position: relative;
+        /* Theater Stage */
+        .theater-stage {
+            position: sticky;
+            top: 0;
             width: 100%;
-            overflow-x: hidden;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
         }
 
-        /* Loading Screen */
-        #loader {
-            position: fixed;
+        .scene {
+            position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: #000;
-            z-index: 10000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        .loader-svg {
-            width: 300px;
-            overflow: visible;
-        }
-
-        .loader-text {
-            fill: none;
-            stroke: var(--primary);
-            stroke-width: 1;
-            font-family: var(--font-main);
-            font-weight: 900;
-            font-size: 40px;
-            letter-spacing: 5px;
-        }
-
-        /* Cinematic Hero Section */
-        .hero {
-            position: relative;
-            height: 100vh;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            visibility: hidden; /* Wait for intro */
-        }
-
-        .hero-img-container {
-            position: absolute;
-            width: 100%; height: 100%;
-            clip-path: circle(0% at 50% 50%); /* For anime.js */
-            z-index: 1;
-        }
-
-        .hero-img-container img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            object-position: center 20%;
-            filter: brightness(0.7) contrast(1.1);
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            mix-blend-mode: difference;
-        }
-
-        .hero-title {
-            font-size: clamp(3rem, 12vw, 8rem);
-            font-weight: 900;
-            line-height: 0.9;
-            text-transform: uppercase;
-            overflow: hidden;
-        }
-
-        .hero-title span {
-            display: inline-block;
-            transform: translateY(100%);
-        }
-
-        .hero-sub {
-            font-size: clamp(1rem, 2vw, 1.5rem);
-            font-family: var(--font-accent);
-            letter-spacing: 0.2em;
-            margin-top: 20px;
-            opacity: 0;
-        }
-
-        /* Story Sections */
-        .story-section {
-            position: relative;
-            min-height: 100vh;
-            padding: 100px 5vw;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
             z-index: 5;
         }
 
-        .section-tag {
-            font-family: var(--font-accent);
-            color: var(--primary);
-            font-size: 0.8rem;
-            letter-spacing: 0.5em;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            display: block;
+        .scene.active {
+            opacity: 1;
+            pointer-events: all;
         }
 
-        .section-title {
-            font-size: clamp(2rem, 8vw, 5rem);
-            font-weight: 700;
-            max-width: 900px;
-            line-height: 1.1;
-            margin-bottom: 30px;
-        }
-
-        .section-desc {
-            font-size: 1.2rem;
-            color: var(--text-dim);
-            max-width: 600px;
-            line-height: 1.6;
-        }
-
-        .expertise-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 40px;
-            margin-top: 60px;
-        }
-
-        .expertise-item {
-            padding: 40px;
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.02);
-            transition: var(--transition);
-        }
-
-        .expertise-item:hover {
-            background: rgba(240, 255, 66, 0.05);
-            border-left-color: var(--primary);
-        }
-
-        .expertise-item h3 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
-
-        .expertise-item p {
-            color: var(--text-dim);
-            line-height: 1.6;
-        }
-
-        .book-btn {
-            display: inline-block;
-            padding: 20px 50px;
-            background: var(--primary);
-            color: #000;
-            text-decoration: none;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            margin-top: 40px;
-            transition: var(--transition);
-        }
-
-        .book-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(240, 255, 66, 0.3);
-        }
-
-        body::after {
-            content: "";
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-            opacity: 0.05;
-            pointer-events: none;
-            z-index: 9999;
-        }
-
-        /* QR Code Styling */
-        .qr-container {
-            margin-top: 50px;
-            text-align: center;
-        }
-
-        .qr-code {
-            width: 180px;
-            height: 180px;
-            padding: 15px;
-            background: #fff;
-            border-radius: 10px;
-            display: inline-block;
-            transition: var(--transition);
-        }
-
-        .qr-code img {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Mobile specific scroll tweaks */
-        @media (max-width: 768px) {
-            .story-section {
-                padding: 60px 8vw;
-            }
-            .section-title {
-                font-size: 2.5rem;
-            }
-            .expertise-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Guided Dot */
+        /* Guided Dot (Theatre Version) */
         .guided-dot {
-            position: fixed;
-            width: 14px;
-            height: 14px;
+            position: absolute; /* Relative to theater-stage */
+            width: 16px;
+            height: 16px;
             background: var(--primary);
             border-radius: 50%;
-            z-index: 10000;
+            z-index: 100;
             pointer-events: none;
-            box-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary);
+            box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary);
             transform: translate(-50%, -50%);
-            will-change: left, top, transform, width, height;
+            will-change: left, top, transform;
         }
 
         .dot-pulse {
@@ -274,22 +89,45 @@
             opacity: 0;
         }
 
-        /* Hidden Path Container */
-        #path-container {
-            position: absolute;
-            width: 1px; height: 1px;
-            overflow: hidden;
-            opacity: 0;
+        /* Content Styles */
+        .hero-title {
+            font-size: clamp(3rem, 12vw, 8rem);
+            font-weight: 900;
+            line-height: 0.9;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .section-tag {
+            font-family: var(--font-accent);
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .expertise-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .expertise-item {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 2px solid var(--primary);
         }
 
         /* Canvas Background */
         #bg-canvas {
-            position: fixed;
+            position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            z-index: 0;
+            z-index: 1;
             pointer-events: none;
-            background: #000;
         }
 
         /* Utility classes */
@@ -302,272 +140,159 @@
 <body>
 
     <div id="loader">
-        <svg class="loader-svg" viewBox="0 0 400 200">
-            <!-- Geometric Frame -->
-            <path class="loader-frame" d="M 50,50 L 350,50 L 350,150 L 50,150 Z" fill="none" stroke="var(--primary)" stroke-width="0.5" />
-            <text x="50%" y="105" text-anchor="middle" dominant-baseline="middle" class="loader-text">ERIC LIN</text>
-        </svg>
+        <text class="loader-text">ERIC LIN</text>
     </div>
 
-    <canvas id="bg-canvas"></canvas>
+    <div class="theater-stage">
+        <canvas id="bg-canvas"></canvas>
+        
+        <div class="guided-dot">
+            <div class="dot-pulse"></div>
+        </div>
 
-    <!-- Guided Dot Narrative -->
-    <div class="guided-dot">
-        <div class="dot-pulse"></div>
-    </div>
-    
-    <div id="path-container">
-        <svg viewBox="0 0 100 1000">
-            <!-- Path zig-zags to follow the storytelling flow -->
-            <path id="guide-path" d="M 50,20 C 80,150 20,250 50,400 S 80,600 50,750 S 20,900 50,980" fill="none" />
-        </svg>
-    </div>
+        <!-- Scene 0: Hero -->
+        <div class="scene" id="scene-hero">
+            <h1 class="hero-title">ELITE<br>PERFORMANCE</h1>
+            <p class="section-tag">Eric Lin / Fitness Coach</p>
+        </div>
 
-    <div id="app-wrapper">
-        <section class="hero" id="hero">
-            <div class="hero-img-container">
-                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80" alt="Eric Lin Coach">
-            </div>
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    <span class="t1">Elite</span><br>
-                    <span class="t2">Performance</span>
-                </h1>
-                <p class="hero-sub">REDEFINING YOUR POTENTIAL — BY ERIC LIN</p>
-            </div>
-        </section>
+        <!-- Scene 1: Story -->
+        <div class="scene" id="scene-story">
+            <span class="section-tag">01 / Philosophy</span>
+            <h2 class="hero-title" style="font-size: 3rem;">追求極致，從聰明的訓練開始</h2>
+            <p style="color: var(--text-dim); text-align: center; max-width: 500px;">
+                我們不只是在鍛鍊身體，是在重塑意志。透過科學化的數據分析與個人化導引，釋放你潛藏的運動潛能。
+            </p>
+        </div>
 
-        <!-- Story Sections -->
-        <section class="story-section" id="philosophy">
-            <div class="reveal-box">
-                <span class="section-tag">01 / Philosophy</span>
-                <h2 class="section-title">
-                    你需要的不是更努力，<br>而是更聰明的訓練。
-                </h2>
-                <p class="section-desc">科學訓練，成就卓越。我們不只是教動作，我們是在優化你的生活與運動表現。</p>
-            </div>
-        </section>
-
-        <section class="story-section" id="expertise">
-            <div class="reveal-box">
-                <span class="section-tag">02 / Expertise</span>
-                <h2 class="section-title">專業項目</h2>
-                <div class="expertise-grid">
-                    <div class="expertise-item">
-                        <h3>長者肌力</h3>
-                        <p>優化生活品質，重拾行動自由。</p>
-                    </div>
-                    <div class="expertise-item">
-                        <h3>專項運動表現</h3>
-                        <p>突破極限，追求卓越表現。</p>
-                    </div>
-                    <div class="expertise-item">
-                        <h3>傷後功能重建</h3>
-                        <p>科學康復，安全回歸運動。</p>
-                    </div>
+        <!-- Scene 2: Methods -->
+        <div class="scene" id="scene-methods">
+            <span class="section-tag">02 / Expertise</span>
+            <div class="expertise-grid">
+                <div class="expertise-item">
+                    <h3>增肌減脂</h3>
+                    <p>精準的體組成管理，打造理想體態。</p>
+                </div>
+                <div class="expertise-item">
+                    <h3>體能改造</h3>
+                    <p>提升心肺耐力與爆發力，突破體能極限。</p>
+                </div>
+                <div class="expertise-item">
+                    <h3>運動表現</h3>
+                    <p>專為專項運動員設計的強化訓練計畫。</p>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <section class="story-section" id="contact">
-            <div class="reveal-box">
-                <span class="section-tag">03 / Action</span>
-                <h2 class="section-title">開始你的改變</h2>
-                <div class="qr-container">
-                    <div class="qr-code">
-                        <!-- Eric's LINE QR Code -->
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://line.me/ti/p/1VjR0jyXCu" alt="LINE QR Code">
-                    </div>
-                </div>
-                <a href="https://line.me/ti/p/1VjR0jyXCu" class="book-btn">BOOK SESSION</a>
+        <!-- Scene 3: Action -->
+        <div class="scene" id="scene-action">
+            <span class="section-tag">03 / Action</span>
+            <h2 class="hero-title" style="font-size: 3rem;">開始你的改變</h2>
+            <div style="padding: 10px; background: #fff; border-radius: 10px; margin: 20px 0;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://line.me/ti/p/1VjR0jyXCu" alt="QR Code" style="width: 150px; height: 150px;">
             </div>
-        </section>
+            <a href="https://line.me/ti/p/1VjR0jyXCu" style="background: var(--primary); color: #000; padding: 15px 40px; border-radius: 50px; text-decoration: none; font-weight: 900; letter-spacing: 0.1em;">BOOK SESSION</a>
+        </div>
     </div>
 
     <script>
-        // --- 1. Canvas Dot Grid ---
+        // Config
+        const dot = document.querySelector('.guided-dot');
+        const scenes = document.querySelectorAll('.scene');
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
-        let dots = [];
-        const spacing = 40;
-
-        function initCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            dots = [];
-            for (let x = 0; x <= canvas.width; x += spacing) {
-                for (let y = 0; y <= canvas.height + 200; y += spacing) {
-                    dots.push({ x, y, originY: y });
-                }
-            }
-        }
-
-        function render() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'rgba(240, 255, 66, 0.1)';
-            
-            const scrollOffset = window.scrollY * 0.15;
-            
-            dots.forEach(dot => {
-                let displayY = (dot.originY - scrollOffset) % (canvas.height + 200);
-                if (displayY < 0) displayY += (canvas.height + 200);
-                
-                if (displayY <= canvas.height) {
-                    ctx.beginPath();
-                    ctx.arc(dot.x, displayY, 0.8, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            });
-            requestAnimationFrame(render);
-        }
-
-        window.addEventListener('resize', initCanvas);
-        initCanvas();
-        render();
-
-        // --- 2. Guided Dot Engine (Mobile First) ---
-        const dot = document.querySelector('.guided-dot');
-        const pulse = document.querySelector('.dot-pulse');
-        const path = anime.path('#guide-path');
         
         let scrollProgress = 0;
-        let currentPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-        let targetPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let currentPos = { x: window.innerWidth/2, y: window.innerHeight/2 };
+        let targetPos = { x: window.innerWidth/2, y: window.innerHeight/2 };
 
+        // 1. Scene Manager (Cross-fade between absolute scenes)
+        function updateScenes(progress) {
+            // Determine active scene based on scroll percentage
+            let activeIndex = 0;
+            if (progress < 0.25) activeIndex = 0;
+            else if (progress < 0.5) activeIndex = 1;
+            else if (progress < 0.75) activeIndex = 2;
+            else activeIndex = 3;
+
+            scenes.forEach((s, i) => {
+                if (i === activeIndex) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        }
+
+        // 2. Math-Based Anchor Engine (Lissajous Curve)
         function updateDot() {
             const scrollY = window.scrollY;
-            const maxScroll = (document.documentElement.scrollHeight - window.innerHeight) || 1;
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight || 1;
             scrollProgress = Math.max(0, Math.min(1, scrollY / maxScroll));
 
-            // Map progress to path (0 to 100)
-            const pathProgress = scrollProgress * 100;
-            const p = path(pathProgress);
-
-            // Fixed Viewport Mapping (Mobile Optimized)
-            // We use a safe-zone for x (15% to 85%)
-            const safeWidth = window.innerWidth * 0.7;
-            targetPos.x = (window.innerWidth * 0.15) + (p.x / 100) * safeWidth;
+            // Parametric Motion (Floating Infinity Loop)
+            const time = scrollProgress * Math.PI * 2;
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
             
-            // Y is mapped to viewport height (20% to 80% to keep in view)
-            const safeHeight = window.innerHeight * 0.6;
-            targetPos.y = (window.innerHeight * 0.2) + (p.y / 1000) * safeHeight;
+            // X/Y oscillate with different frequencies for complex curves
+            targetPos.x = centerX + Math.sin(time * 2.5) * (window.innerWidth * 0.35);
+            targetPos.y = centerY + Math.cos(time * 1.2) * (window.innerHeight * 0.25);
 
-            // Smooth Lerp
-            currentPos.x += (targetPos.x - currentPos.x) * 0.12;
-            currentPos.y += (targetPos.y - currentPos.y) * 0.12;
+            // Lerp for high-end smoothness
+            currentPos.x += (targetPos.x - currentPos.x) * 0.08;
+            currentPos.y += (targetPos.y - currentPos.y) * 0.08;
 
             dot.style.left = `${currentPos.x}px`;
             dot.style.top = `${currentPos.y}px`;
 
-            // Velocity-based scaling (Stretch on move)
+            // Velocity-based scaling
             const dx = targetPos.x - currentPos.x;
             const dy = targetPos.y - currentPos.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            const scale = 1 + Math.min(0.5, dist / 100);
-            
-            if (scrollProgress < 0.95) {
-                dot.style.transform = `translate(-50%, -50%) scale(${scale})`;
-                dot.style.width = '14px';
-                dot.style.height = '14px';
-                dot.style.opacity = '1';
-            } else {
-                // Final nesting pulse
-                dot.style.transform = `translate(-50%, -50%) scale(1)`;
-                dot.style.width = '80px';
-                dot.style.height = '80px';
-                dot.style.opacity = '0.15';
-            }
+            const speed = Math.sqrt(dx*dx + dy*dy);
+            const scale = 1 + Math.min(1.5, speed / 40);
+            dot.style.transform = `translate(-50%, -50%) scale(${scale})`;
 
+            updateScenes(scrollProgress);
+            drawBackground();
             requestAnimationFrame(updateDot);
         }
-        updateDot();
 
-        // --- 3. Master Animation Timeline ---
+        // 3. Ambient Background Animation
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        function drawBackground() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Energy center connection
+            ctx.strokeStyle = 'rgba(240, 255, 66, 0.05)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(window.innerWidth / 2, window.innerHeight / 2);
+            ctx.lineTo(currentPos.x, currentPos.y);
+            ctx.stroke();
+        }
+
+        // 4. Initialization & Intro
         window.addEventListener('load', () => {
-            const tl = anime.timeline({
-                easing: 'easeOutExpo'
-            });
-
-            tl
-            .add({
-                targets: '.loader-frame',
-                strokeDashoffset: [anime.setDashoffset, 0],
-                duration: 1500,
-                delay: 500,
-                easing: 'easeInOutSine'
-            })
-            .add({
-                targets: '.loader-text',
-                opacity: [0, 1],
-                letterSpacing: ['0.5em', '1.2em'],
-                duration: 1000
-            }, '-=800')
-            .add({
+            // Simple Intro Fade
+            anime({
                 targets: '#loader',
                 opacity: 0,
-                duration: 800,
-                easing: 'easeInOutQuart',
+                duration: 1000,
+                delay: 1000,
+                easing: 'easeInOutQuad',
                 complete: () => {
                     document.getElementById('loader').style.display = 'none';
+                    updateDot();
                 }
-            })
-            .add({
-                targets: '.hero-img-container',
-                clipPath: ['circle(0% at 50% 50%)', 'circle(100% at 50% 50%)'],
-                duration: 2000,
-                easing: 'easeInOutQuart'
-            }, '-=600')
-            .add({
-                targets: '.hero-title span',
-                translateY: [100, 0],
-                opacity: [0, 1],
-                rotate: [5, 0],
-                delay: anime.stagger(150),
-                duration: 1200
-            }, '-=1500')
-            .add({
-                targets: '.hero-sub',
-                opacity: [0, 1],
-                translateY: [20, 0],
-                duration: 800
-            }, '-=800');
-
-            // --- 4. Intersection Observer for Storytelling ---
-            const observerOptions = { threshold: 0.15 };
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const target = entry.target;
-                        
-                        // Trigger Pulse on Dot when entering section
-                        anime({
-                            targets: '.dot-pulse',
-                            scale: [1, 4],
-                            opacity: [0.8, 0],
-                            duration: 1000,
-                            easing: 'easeOutQuart'
-                        });
-
-                        const revealElements = target.querySelectorAll('.reveal-box > *, .expertise-item');
-                        
-                        anime({
-                            targets: revealElements,
-                            opacity: [0, 1],
-                            translateY: [30, 0],
-                            delay: anime.stagger(150),
-                            duration: 1200,
-                            easing: 'easeOutExpo'
-                        });
-
-                        observer.unobserve(target);
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.story-section').forEach(section => {
-                const children = section.querySelectorAll('.reveal-box > *, .expertise-item');
-                children.forEach(c => c.style.opacity = '0');
-                observer.observe(section);
             });
         });
     </script>
